@@ -17,6 +17,9 @@ editor_options:
 What makes an effective data visualization? What are the essential components/characteristics, and what are optional but nice-to-have components/characteristics? 
 
 Come up with a consensus list among your group members. 
+Axis title
+Colorblind proof
+etc.
 
 Compare your list to other groups' lists. 
 
@@ -25,7 +28,14 @@ Compare your list to other groups' lists.
 1. Navigate to https://www.data-to-viz.com/.
 2. Think of a dataset that you or someone in your field might want to visualize. What types of variables does this dataset contain? What information might you want to convey with a visualization?
 
-<add notes here>
+<add notes here> Carrots make a note not appear in the final document 
+USGS stream flow 
+
+flow in cfs
+date
+time
+
+Whether there are trends in flow seasonally, yearly, or after a storm; or to just visualize what the flow is opr compare flows of different streams.
 
 3. Scroll to the "Explore" section of the website. Follow the flow chart to find a type of graph that would suit your data. Click for more information and a link to the R Graph Gallery. If there are multiple options for graphing your data, how might you choose between them?
 
@@ -148,7 +158,15 @@ hint: package ggrepel includes a `geom_label_repel` function
 hint: Google "add legend two geom layers ggplot"
 
 ```{r}  
-
+EnoPlot2 <- 
+  ggplot(EnoDischarge, aes(x = Date, y = Discharge)) +
+         geom_line() +
+         xlab("Year")+
+         ylab("Discharge (m^3/s)")+
+  geom_line(aes(y=Discharge))+
+  geom_line(aes(y=rollmean(Color, 7, na.pad=TRUE)))
+  
+print(EnoPlot2)
 
 ```
 
