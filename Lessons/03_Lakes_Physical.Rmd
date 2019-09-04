@@ -16,7 +16,11 @@ editor_options:
 ## Opening Discussion
 What is a lake? How does this differ from a stream, river, or wetland?
 
+A lake is a thing.
+
 What are the physical properties of lakes?
+
+Water, etc.
 
 ## Session Set Up
 ```{r, message = FALSE}
@@ -53,7 +57,7 @@ class(NTLdata$sampledate)
 
 # Remove rows that contain NAs in temperature column
 dim(NTLdata)
-NTLdata <- NTLdata %>%
+NTLdata <- NTLdata %>%       # this is how you use piping
   drop_na(temperature_C)
 dim(NTLdata)  
 
@@ -186,7 +190,7 @@ TempprofileMay2016 <-
   ggplot(Pauldata.May2016, aes(x = temperature_C, y = depth)) +
   geom_line(color = "#081d58") +
   geom_vline(xintercept = 4, lty = 2) +
-  scale_y_reverse(breaks = c(0, 2, 4, 6, 8, 10, 12)) +
+  scale_y_reverse(breaks = c(0, 2, 4, 6, 8, 10, 12)) +         # this is how you make a graph look like a lake profile
   scale_x_continuous(position = "top", limits = c(0, 30)) +
   labs(x = expression("Temperature "(degree*C)), y = "Depth (m)")
 print(TempprofileMay2016)
@@ -251,3 +255,8 @@ Why does mixing occur in the spring and fall? What are the mechanisms that make 
 ## Closing Discussion
 
 What are the main concepts you learned about the physical properties of lakes today? What was the evidence for these concepts in the dataset?
+Epilimnion: Well mixed, warm surface layer of a lake
+Metalimnion: The thermocline; rapid change in physical water conditions
+Hypolimnion: The cold, bottom layer of a lake that is separated from the surface layer by the metalimnion
+
+
