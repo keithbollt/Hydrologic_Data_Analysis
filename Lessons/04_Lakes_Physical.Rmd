@@ -90,21 +90,21 @@ print(Oxygenprofiles2016)
 Physicalprofiles2016 <- 
   plot_grid(Tempprofiles2016, Lightprofiles2016, Oxygenprofiles2016, 
             ncol = 3, rel_widths = c(1.25, 1, 1.5))
-print(Physicalprofiles2016)
+print(Physicalprofiles2016)    # This is how you put three graphs that can't be faceted bc they have different variables on the same screen.
 
 ```
 
 How do temperature profiles vary over the course of a season? What are the mechanisms for this pattern?
 
-> 
+> We see the temperature gradient shifting warmer as the summer goes on. The hypolimnion remains in the same location.
 
 How do irradiance profiles vary over the course of a season? What are the mechanisms for this pattern?
 
-> 
+> Irridescence increases until the summer solstice, then decreases thereafter.It also decreases with depth
 
 How do dissolved oxygen profiles vary over the course of a season? What are the mechanisms for this pattern?
 
-> 
+> Dissolved oxygen capacity is inversely correlated with temperature, so it makes sense that we see dissolved oxygen and temperature moving in opposite directions, where there is change (there isn't much change at the bottom of the lake).The spike in oxygen at mid depth is caused by a spike in cholorophyll. There is almost no oxygen at depth due to microbial respiration, and it is too deep for it to be light enough for photosynthesis to occur.
 
 
 ## Data Analysis
@@ -122,7 +122,18 @@ Steps:
 5. Create a ggplot of surface temps by date and facet by month. Add `geom_smooth(se = FALSE, method = lm)` to the plot to display the regression line.
 
 ```{r}
+Pauldata$Month <- month(Pauldata$sampledate)
 
+Pauldatafiltered <- Pauldata %>%
+  filter(depth == 0 & Month < 11 & Month > 4) 
+
+Pauldata.May <- Pauldatafiltered %>%
+  filter(Month == 5)
+
+PaulMaylineartest <- lm(data = Pauldata.May, temperature_C ~ year4)
+summary(PaulMaylineartest)
+
+# You do linear tests with lm
 
 
 ```
