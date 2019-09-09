@@ -1,6 +1,6 @@
 ---
 title: "Assignment 2: Physical Properties of Lakes"
-author: "Student Name"
+author: "Keith Bollt"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -27,8 +27,22 @@ The completed exercise is due on 11 September 2019 at 9:00 am.
 3. Import the NTL-LTER physical lake dataset and set the date column to the date format
 4. Set your ggplot theme (can be theme_classic or something else)
 
-```{r}
+```{r, warning=FALSE}
+getwd()
 
+#I am using a new computer, so I have to install again!
+#install.packages("tidyverse")
+#install.packages("lubridate")
+#install.packages("cowplot") 
+
+library(tidyverse)
+library(lubridate)
+library(cowplot)
+
+NTLER_data <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv")
+NTLER_data$sampledate <- as.Date(NTLER_data$sampledate, "%m/%d/%y")
+
+theme_set(theme_light())
 ```
 
 ## Creating and analyzing lake temperature profiles
@@ -38,20 +52,45 @@ The completed exercise is due on 11 September 2019 at 9:00 am.
 5. Choose either Peter or Tuesday Lake. Create a new data frame that wrangles the full data frame so that it only includes that lake during two different years (one year from the early part of the dataset and one year from the late part of the dataset).
 
 ```{r}
-
+Tuesday_NTL <- filter(NTLER_data, lakename == "Tuesday Lake")
+Tuesday_filtered <- filter(Tuesday_NTL, year4 == 1984 | year4 == 2016)
+                     
 ```
 
 6. Create three graphs: (1) temperature profiles for the early year, (2) temperature profiles for the late year, and (3) a `plot_grid` of the two graphs together. Choose `geom_point` and color your points by date. 
 
 Remember to edit your graphs so they follow good data visualization practices.
 
-```{r}
+```{r, warning=FALSE}
+Tuesday_eightyfour <- filter(Tuesday_filtered, year4 == 1984)
 
+Eightyfourplot <- ggplot(Tuesday_eightyfour, aes(x = temperature_C, y = depth, color = daynum))+
+  geom_point()+
+  labs(x = expression("Temperature "(degree*C)), y = "Depth (m)", color = "Day Number")+
+  scale_y_reverse()+
+  scale_color_viridis_c(end = 0.8, option = "magma")
+
+print(Eightyfourplot)
+
+Tuesday_sixteen <- filter(Tuesday_filtered, year4 == 2016)
+
+Sixteenplot <- ggplot(Tuesday_sixteen, aes(x = temperature_C, y = depth, color = daynum))+
+  geom_point()+
+  labs(x = expression("Temperature "(degree*C)), y = "Depth (m)", color = "Day Number")+
+  scale_y_reverse()+
+  scale_color_viridis_c(end = 0.8, option = "magma")
+
+print(Sixteenplot)
+
+Tuesday_comparison <-
+  plot_grid(Eightyfourplot, Sixteenplot, ncol = 2, rel_widths = 1, 1.5)
+print(Tuesday_comparison)
 ```
 
 7. Interpret the stratification patterns in your graphs in light of seasonal trends. In addition, do you see differences between the two years?
 
-> 
+> I am seeing similar patterns in Tuesday Lake to those that we saw in class in Paul Lake. As the summer goes on, the surface warms, but the hypolimnion stays basically in the same place. By August, the surface is already starting to cool back down again for fall. 
+The lake is warmer in 2016 than 1984 at all depths across the summer. From the naked eye, even the bottom of the lake looks like it is warmer in 2016.
 
 ### Multiple lakes, single date 
 
