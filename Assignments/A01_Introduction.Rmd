@@ -93,7 +93,7 @@ flowvsgage <- ggplot(EnoDischarge, aes(x= GageHeight, y = Discharge, color =Year
   geom_point(alpha = 0.5)+
   xlab("Gage Height (ft)")+
   ylab("Discharge(ft3/s)")+
-  scale_color_gradient(low = "Yellow", high = "Red")
+  
   
 
 print(flowvsgage)

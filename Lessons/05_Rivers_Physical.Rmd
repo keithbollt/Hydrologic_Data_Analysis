@@ -74,11 +74,12 @@ NehalemSummary <- whatNWISdata(siteNumbers = "14299800")
 
 What data are available from the sites? Pay particular attention to the parameter codes and statistic codes.
 
->
+>Each row from the metadata represents a different type of data being collected.
+Look at the vignette for information on what the metadata stands for.
 
 What is the period of record for mean daily discharge at each of these sites?
 
-> Eno River: 
+> Eno River (actually the Haw River): 
 
 > Verde River: 
 
@@ -91,6 +92,9 @@ What is the period of record for mean daily discharge at each of these sites?
 The function `readNWISdv` allows us to access daily hydrologic data, which include discharge, gage height, temperature, precipitation, and pH. The function `readNWISqw` allows us to access water quality data. 
 
 We will access the last 10 years of data for our purposes today. Alternatively,  you could code `startDate = ""` to indicate you want to access all available data for the entire period of record. Then, you could filter out the years you don't want to analyze.
+
+Statcd 00003, mean discharge, is the default.
+parametercd of 00060 is discharge
 
 ```{r}
 # Import data
@@ -200,15 +204,16 @@ print(CombinedPlot)
 
 How does the magnitude of discharge compare for these rivers?
 
->
+>On average, the magnitude varies greatly. While all the rivers have peaks that are on a similar scale, the typical quotidien discharge on, say, the Verde River is much lower than, say, the Bitterroot River.
 
 Which of these rivers have a seasonal cycle of discharge? How might you explain the presence and timing of seasonal cycles based on climatic conditions?
 
->
+>The Bitterroot, Sauk, Nehalem all have seasonal cycles. These are the three rivers that are in regions with exageratted seasons.
 
 Hypothetical question: If you wanted to create a ggplot using facets instead of `plot_grid`, how would you go about wrangling your dataset differently? 
 
->
+> You did faceting last semester, you would go back and use that code.
+Use the function "rbind" to stack the four dataframes on top of eachother (assuming site number has the same title in each dataframe, which it does), then facet by site number.
 
 ## Defining "typical" discharge pattern
 Let's take the Bitterroot River, which displays a clear seasonal cycle. Let's define the median discharge on a given day of year and overlay this onto the range experienced. We will take a longer period of record this time.
@@ -221,7 +226,7 @@ BitterrootDischarge.Historical <- readNWISdv(siteNumbers = "12344000",
 names(BitterrootDischarge.Historical)[4:5] <- c("Discharge", "Approval.Code")
 
 BitterrootDischarge.Historical <- mutate(BitterrootDischarge.Historical, 
-                                         DOY = yday(Date))
+                                         DOY = yday(Date))  # Adds a DOY column
 
 BitterrootDischarge.Pattern <- BitterrootDischarge.Historical %>%
   group_by(DOY) %>%

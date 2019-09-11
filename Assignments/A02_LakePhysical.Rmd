@@ -97,26 +97,69 @@ The lake is warmer in 2016 than 1984 at all depths across the summer. From the n
 8. On July 25, 26, and 27 in 2016, all three lakes (Peter, Paul, and Tuesday) were sampled. Wrangle your data frame to include just these three dates.
 
 ```{r}
-
+Julysixteen <- filter(NTLER_data, 
+              lakename == "Peter Lake" | lakename == "Paul Lake" |lakename == "Tuesday Lake",
+              year4 == 2016, daynum == 207| daynum == 208 | daynum == 209)
+ 
+              
 ```
 
 9. Plot a profile line graph of temperature by depth, one line per lake. Each lake can be designated by a separate color.
 
-```{r}
+```{r, warning=FALSE}
+threelakegraph <- ggplot(Julysixteen, aes(x = temperature_C, y = depth, color = lakename))+
+  geom_line()+
+  scale_y_reverse()+
+   labs(x = expression("Temperature "(degree*C)), y = "Depth (m)", color = "Lake")
 
+print(threelakegraph)
 ```
 
 10. What is the depth range of the epilimnion in each lake? The thermocline? The hypolimnion?
 
->
+> 
+(Paul Lake) Epilimnion: 0-2m, Thermocline: 2-7m, Hypolimnion: 7 meters and below
+(Peter Lake) Epilimnion: 0-1.7m, Thermocline: 1.7-6.5m, Hypolimnion: 6.5 meters and below
+(Tuesday Lake) Epilimnion: 0-1.5m, Thermocline: 2-6m, Hypolimnion: 6 meters and below
+
 
 ## Trends in surface temperatures over time. 
 11. Run the same analyses we ran in class to determine if surface lake temperatures for a given month have increased over time ("Long-term change in temperature" section of day 4 lesson in its entirety), this time for either Peter or Tuesday Lake. 
 
 ```{r}
+Tuesdaysurface <- Tuesday_NTL %>%
+  mutate(Month = month(sampledate)) %>%
+  filter(depth == 0 & Month < 9)
 
+Tuesdaysurface.May <- filter(Tuesdaysurface, Month == 5)
+Tuesdaysurface.June <- filter(Tuesdaysurface, Month == 6)
+Tuesdaysurface.July <- filter(Tuesdaysurface, Month == 7)
+Tuesdaysurface.August <- filter(Tuesdaysurface, Month == 8)
+
+Temptrend.May <- lm(data = Tuesdaysurface.May, temperature_C ~ year4)
+summary(Temptrend.May)
+#slope= 0.02 Celsius/year, p value = 0.56 (not statistically significant trend)
+
+Temptrend.June <- lm(data = Tuesdaysurface.June, temperature_C ~ year4)
+summary(Temptrend.June)
+#slope= -0.0002 Celsius/year, p value = 0.99 (not statistically significant trend)
+
+Temptrend.July <- lm(data = Tuesdaysurface.July, temperature_C ~ year4)
+summary(Temptrend.July)
+#slope= 0.04 Celsius/year, p value = 0.06 (not statistically significant trend)
+
+Temptrend.August <- lm(data = Tuesdaysurface.August, temperature_C ~ year4)
+summary(Temptrend.August)
+#slope= 0.03 Celsius/year, p value = 0.16 (not statistically significant trend)
+
+ggplot(Tuesdaysurface, aes(x = sampledate, y = temperature_C)) +
+  geom_point() +
+  facet_grid(rows = vars(Month)) +
+  geom_smooth(se = FALSE, method = lm)
 ```
 
 12. How do your results compare to those we found in class for Paul Lake? Do similar trends exist for both lakes?
 
 > 
+I found for Tuesday Lake that for each of the four months sampled, there is not a significantly significant trend in surface temperature over the range of the dataset (altough July has a p-value of 0.057, which is pretty close).
+On the other hand, Paul Lake shows statistically significant, positive trends in surface temperature for the months of July (0.06 °C/year) and August (0.04 °C/year). Under the statistical test we conducted, Paul Lake is showing evidence of climate change, and Tuesday Lake is not showing evidence of climate change. Of course, this does not refute climate change, we would have to run other tests!
