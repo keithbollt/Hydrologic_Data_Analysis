@@ -1,6 +1,6 @@
 ---
 title: "Assignment 3: Physical Properties of Rivers"
-author: "Student Name"
+author: "Keith Bollt"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -29,7 +29,28 @@ The completed exercise is due on 18 September 2019 at 9:00 am.
 5. Build a ggplot of discharge over the entire period of record. 
 
 ```{r}
+getwd()
 
+#install.packages("cowplot")
+library(tidyverse)
+library(dataRetrieval)
+library(lubridate)
+library(cowplot)
+
+theme_set(theme_classic())
+
+MysterySiteDischarge <- readNWISdv(siteNumbers = "03431700",
+                     parameterCd = "00060", # discharge (ft3/s)
+                     startDate = "",
+                     endDate = "")
+
+names(MysterySiteDischarge)[4:5] <- c("Discharge", "Approval.Code")
+
+Mysterysite.dischargeplot <- ggplot(MysterySiteDischarge, aes(x= Date, y = Discharge))+
+  geom_point()+
+  labs(y = "Discharge (cfs)")
+
+print(Mysterysite.dischargeplot)
 
 ```
 
@@ -40,12 +61,34 @@ The completed exercise is due on 18 September 2019 at 9:00 am.
 7. Create a plot of median, 75th quantile, and 25th quantile discharges against day of year. Median should be black, other lines should be gray. 
 ```{r}
 
+MysterySiteDischarge <-
+  MysterySiteDischarge %>%
+  mutate(Year = year(Date),
+         Day.of.Year = yday(Date))
 
+MysterySiteDischarge.Pattern <-
+  MysterySiteDischarge %>%
+  group_by(Day.of.Year)%>%
+  summarise(
+    FirstQuartile.Discharge = quantile(Discharge, probs=(0.25)),
+    Median.Discharge = quantile(Discharge, probs=(0.50)),
+    ThirdQuartile.Discharge = quantile(Discharge, probs=(0.75))) 
+
+Pattern.plot <- ggplot(MysterySiteDischarge.Pattern)+
+  geom_line(aes(x = Day.of.Year, y = FirstQuartile.Discharge), color = "gray")+
+  geom_line(aes(x = Day.of.Year, y = Median.Discharge))+
+  geom_line(aes(x = Day.of.Year, y = ThirdQuartile.Discharge), color = "gray")+
+  labs(x = "Day of Year", y = "Discharge (cfs)")+
+  theme(legend.position = "none")
+  
+print(Pattern.plot)  
 ```
 
 8. What seasonal patterns do you see? What does this tell you about precipitation patterns and climate in the watershed?
 
-> 
+> There is a cyclical cycle to all three quantiles. Discharge is lowest in late summer, and also has little variation during this time. The discharge increases around November 1, and stays pretty high through April. The variation is also higher during this time. 
+This tells us that this watershed sees dry summers, wet winters, large winter storms/snowmelt events, and few large summer storms.
+I would guess that this river is in a cold climate but not near high mountains.
 
 ## Create and analyze recurrence intervals
 
