@@ -59,7 +59,7 @@ print(Mysterysite.dischargeplot)
 5. Add a "Year" and "Day.of.Year" column to the data frame.
 6. Create a new data frame called "MysterySiteDischarge.Pattern" that has columns for Day.of.Year, median discharge for a given day of year, 75th percentile discharge for a given day of year, and 25th percentile discharge for a given day of year. Hint: the summarise function includes `quantile`, wherein you must specify `probs` as a value between 0 and 1.
 7. Create a plot of median, 75th quantile, and 25th quantile discharges against day of year. Median should be black, other lines should be gray. 
-```{r}
+```{r, message FALSE}
 
 MysterySiteDischarge <-
   MysterySiteDischarge %>%
@@ -98,28 +98,75 @@ I would guess that this river is in a cold climate but not near high mountains.
 
 11. Create a model to predict the discharge for a 100-year flood for both sets of recurrence intervals. 
 
-```{r}
+```{r, message=FALSE}
+#Creating the dataframes
+MysterySite.Annual.30yr <-    
+  MysterySiteDischarge %>%
+  filter(Year < 1994) %>%
+  group_by(Year) %>%
+  summarise(PeakDischarge = max(Discharge)) %>% 
+  mutate(Rank = rank(-PeakDischarge), 
+         RecurrenceInterval = (length(Year) + 1)/Rank, 
+         Probability = 1/RecurrenceInterval)
 
+MysterySite.Annual.Full <-    
+  MysterySiteDischarge %>%
+  group_by(Year) %>%
+  summarise(PeakDischarge = max(Discharge)) %>% 
+  mutate(Rank = rank(-PeakDischarge), 
+         RecurrenceInterval = (length(Year) + 1)/Rank, 
+         Probability = 1/RecurrenceInterval)
 
+#Creating the plot
+names(MysterySite.Annual.30yr)[2:5] <- c("PeakDischarge30", "Rank30", "RecurrenceInterval30",
+                                         "Probability30")
+
+MysterySitejoin <- full_join(MysterySite.Annual.30yr, MysterySite.Annual.Full, by = "Year")
+
+MysterySiteRecurrence <- ggplot(MysterySitejoin)+
+  geom_point(aes(x = RecurrenceInterval30, y = PeakDischarge30), color = "Yellow")+
+  geom_point(aes(x = RecurrenceInterval, y = PeakDischarge), color = "Blue", alpha = 0.1)+
+  labs(x = "Recurrence Interval", y = "Peak Discharge")
+
+print(MysterySiteRecurrence)
+
+#30 year data modelling a 100 year flood
+MysterySite30.RImodel <- lm(data = MysterySitejoin, PeakDischarge30 ~ log(RecurrenceInterval30))  
+summary(MysterySite30.RImodel)  
+
+MysterySite30.RImodel$coefficients[1] + MysterySite30.RImodel$coefficients[2]*log(100)
+#5758.6 cfs
+
+#Full Dataset modelling a 100 year flood
+MysterySiteFull.RImodel <- lm(data = MysterySitejoin, PeakDischarge ~ log(RecurrenceInterval))  
+summary(MysterySiteFull.RImodel)  
+
+MysterySiteFull.RImodel$coefficients[1] + MysterySiteFull.RImodel$coefficients[2]*log(100)
+#4843.7 cfs
 ```
 
 12. How did the recurrence interval plots and predictions of a 100-year flood differ among the two data frames? What does this tell you about the stationarity of discharge in this river?
 
-> 
+> The recurrence interval plot of the full dataset started above the 30 year plot, but was "passed" around a recurrence interval of 5 years. For larger recurrence intervals such as the prediction of a 100 year flood, the 30 year plot predicts higher flow rates than does the full dataset.
+This tells us that stationarity of discharge is probably not a great assumption for River X. If it was, we would see the 30 year plot and the full dataset plot almost mirror eachother. Instead, we see that fewer extreme flooding events are occurring over time.
 
 ## Reflection
 13. What are 2-3 conclusions or summary points about river discharge you learned through your analysis?
 
->
+> There are some areas where rivers are actually seeing fewer extreme flooding events.
+A recurrence interval vs peak discharge graph that will predict a lower number of extreme flooding events may actually predict a higher number of smaller flooding events.
+It is hard to nail down exactly where a river is located based just on its hydrograph.
 
 14. What data, visualizations, and/or models supported your conclusions from 13?
 
-> 
+> My first conclusion is based off of the model I ran in question 11. I found that the full dataset predicted a lower 100 year flood than did the 30 year dataset.
+My second conclusion is based off of looking at the graph I generated in question 10. The full dataset graph (Blue) starts off above the 30 year dataset graph (Yellow), but is passed by it.
+My third conclusion is based off of chewing on where I think this river is located. I am trying to think where it has gotten drier but it is not mountainous. Probably somewhere west of the Mississippi and east of the Rockies. 
 
 15. Did hands-on data analysis impact your learning about discharge relative to a theory-based lesson? If so, how?
 
->
+> Sure. I got to visualize how stationarity of discharge isn't a good assumption by graphing on question 11. Really all my graphs illuminated the ideas we've been discussing in class about hydrographs.
 
 16.	How did the real-world data compare with your expectations from theory?
 
->
+> I would have guessed that the full dataset would have predicted a higher 100 year flood than the 30 year dataset. I suppose climate change is also increasing drought.
