@@ -22,6 +22,10 @@ What are indicator species? Why are they helpful in thinking about water quality
 ```{r, message = FALSE}
 getwd()
 
+#install.packages("tidyverse")
+#install.packages("dataRetrieval")
+#install.packages("xts")
+#install.packages("dygraphs")
 packages <- c("tidyverse", 
               "dataRetrieval", 
               "cowplot", 
@@ -162,7 +166,7 @@ print(Microbes.plot)
 
 How would you use all of this data to talk about changes in microbial water quality from 1970 to 2000? What are the challenges?
 
->
+> You can use the relationship between the types of data to construct a crude timeseries.
 
 Do you think water quality has improved between 1970 and 2000? Why or why not?
 
@@ -197,6 +201,30 @@ coli.seasons <- ggplot(coli.monthly.summaries, aes(x = month)) +
     labs(y = "Total coliforms (cfu / 100 ml)") 
 
 print(coli.seasons)
+
+#Looking at fecal coliforms .45 filter
+monthly.obs2 <- microb.dat %>%
+  mutate(month = month(Date)) %>%
+  group_by(month) %>%
+  select(-Date) %>%
+  summarize_all(funs(sum(!is.na(.))))
+
+coli.monthly.summaries <- microb.dat %>%
+  mutate(month = month(Date)) %>%
+  group_by(month) %>%
+  select(month,F.coli.45) %>%
+  summarize_all(funs(Median = median(., na.rm = T),
+                 quant25 = quantile(., .25, na.rm = T),
+                 quant75 = quantile(., .75, na.rm = T)))
+
+coli.seasons2 <- ggplot(coli.monthly.summaries, aes(x = month)) +
+  geom_ribbon(aes(ymin = quant25, ymax = quant75), alpha = 0.3) +
+  geom_line(aes(y = Median)) +
+  scale_x_continuous(name = "Month",
+                     breaks = c(1,2,3,4,5,6,7,8,9,10,11,12)) +
+    labs(y = "Fecal Coliform .45 (cfu / 100 ml)") 
+
+print(coli.seasons2)
 ```
 
 When are total coliform concentrations highest? Why might this be?
@@ -229,9 +257,11 @@ str(discharge.raw, give.attr = FALSE)
 discharge.dat <- discharge.raw %>%
   select(Date = Date, Discharge_cfs = X_00060_00003)
   
-ggplot(discharge.dat, aes(x = Date, y = Discharge_cfs)) +
+dischargeggplot <- ggplot(discharge.dat, aes(x = Date, y = Discharge_cfs)) +
   geom_line() +
   labs(y = "Discharge (cfs)", x = "Date")
+
+print(dischargegplot)
 ```
 
 We will use an interactive plotting function, dygraphs to look at the discharge data and microbial data overlain on each other. Let's look first at Total Coliform.
