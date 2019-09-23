@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4: Water Quality in Rivers"
-author: "Student Name"
+author: "Keith Bollt"
 output: html_document
 geometry: margin=2.54cm
 editor_options: 
@@ -26,8 +26,22 @@ The completed exercise is due on 25 September 2019 at 9:00 am.
 2. Load the tidyverse, dataRetrieval, cowplot, xts and dygraphs packages. 
 3. Set your ggplot theme (can be theme_classic or something else)
 
-```{r setup}
+```{r setup, message=FALSE}
+getwd()
 
+#install.packages("tidyverse")
+#install.packages("dataRetrieval")
+#install.packages("cowplot") 
+#install.packages("xts")
+#install.packages("dygraphs")
+
+library(tidyverse)
+library(dataRetrieval)
+library(cowplot)
+library(xts)
+library(dygraphs)
+
+theme_set(theme_classic())
 ```
 
 ## Hypoxia
@@ -38,18 +52,32 @@ This assignment will look at another measure of water quality - oxygen concentra
 4. Import the oxygen water quality data from New Hope Creek at Blands (using `readNWISqw()`, site code `02097314`, parameter code `00300`). Make a data frame called `O2.dat` that includes only the Date and O~2~ concentration values. Give your data frame understandable column names.
 
 ```{r read_data}
+data.raw <- readNWISqw(siteNumbers = c("02097314"),
+                     parameterCd = c("00300"),
+                     startDate = "",
+                     endDate = "")
 
+o2.dat <- data.raw %>%
+  select(Date = sample_dt,
+         O2_Concentration = result_va)
 ```
 
 5. Create a ggplot of oxygen concentrations over time. Include a horizonal line at 2 mg/l to show the hypoxia cutoff. 
 
-```{r}
+```{r, message=FALSE}
+variableInfo <- attr(data.raw, "variableInfo")
 
+o2_timeseries <- ggplot(o2.dat, aes(x = Date, y = O2_Concentration))+
+  geom_line()+
+  labs(y = "O2 Concentration (mg/L)")+
+  geom_hline(yintercept = 2)
+  
+print(o2_timeseries)
 ```
 
-6. What do you notice about the frequency of hypoxia overtime?
+6. What do you notice about the frequency of hypoxia over time?
 
-> 
+> It was something that sometimes occurred in the late 1980s. However, as the variabiity of oxygen concentration decreased after 1990, hypoxia simply doesn't occur anymore. This stream hasn't experienced hypoxia in over 30 years.
 
 ## Nutrients
 
