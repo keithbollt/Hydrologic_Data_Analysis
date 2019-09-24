@@ -1,9 +1,11 @@
 ---
-title: "Assignment 4: Water Quality in Rivers"
+title: 'Assignment 4: Water Quality in Rivers'
 author: "Keith Bollt"
-output: html_document
 geometry: margin=2.54cm
-editor_options: 
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
   chunk_output_type: console
 ---
 
@@ -163,25 +165,27 @@ dygraph(DyDat_HW) %>%
 
 13. Temperature also impacts the solubility of oxygen in water. More oxygen can dissolve when temperatures are *lower*. How would you analyze the effects of temperature on dissolved oxygen concentrations? What data would you need? How would you separate the effects of temperature from the effects of flow?
 
-> 
+> To compare temperature and dissolved oxygen, you would need to obtain water temperature data for New Hope Creek. A good way to compare the two variables is with a dygraph similar to the discharge-oxygen graph, but substituting temperature for discharge. You would have to control for flow somehow, because high flows can help mix oxygen into the water and help it dissolve more rapidly. Maybe filter out flows above 100 cfs (100 cfs may even be too high), and assume that lower flows have a negligible effect on ability of water to absorb oxygen.
 
 14. What do you think is the biggest driver of hypoxia in New Hope Creek? What data do you use to support your conclusion?
 
-> 
+> From an eye test, I think it's phosphorus. Observe that the highest phosphorus levels occurred around the same time that the only period of hypoxia also occurred. I imagine that nitrogen, stream flow, and water temperature also have an effect.
 
 ## Reflection
 15. What are 2-3 conclusions or summary points about river water quality you learned through your analysis?
 
->
+> I understand the variables that affect oxygen levels in a stream, especially nutrient influences. I appreciate just how extreme hypoxia is relative to normal stream conditions. I understand dygraphs better as a tool to visually compare two variables over a timeseries.
 
 16. What data, visualizations, and/or models supported your conclusions from 15?
 
-> 
+> 1) The nitrogen-phosphorus cowplot, when compared to the oxygen timeseries, made this evident. So too did the dygraph that compared discharge flow to oxygen.
+2) The oxygen graph demonstrates that hypoxia doesn't usually occur. In conjunction with the nutrient timeseries, I appreciate that there were extreme nutrient levels in New Hope Creek until the late 1980s.
+3)The dygraph comparing oxygen and discharge over time let me appreciate the relationship between the variables, as well as the general usefulness of this type of graph.
 
 17. Did hands-on data analysis impact your learning about water quality relative to a theory-based lesson? If so, how?
 
->
+>Yes. Playing around with the dygraph to answer questions 12 through 14 helped me understand the relationship between dissolved oxygen and the factors that affect it.
 
 18.	How did the real-world data compare with your expectations from theory?
 
->
+> I would have expected that there were more instances of hypoxia in a rapidly developing watershed such as New Hope Creek. I was also surprised to see how sharply and definitively nutrient levels dropped off in the 1980s.
