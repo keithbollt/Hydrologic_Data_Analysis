@@ -85,35 +85,81 @@ print(o2_timeseries)
 
 
 ```{r read_nutrients}
+nutrients.raw <- 
+  readNWISqw(siteNumbers = c("02097314"),
+                     parameterCd = c("00600", "00665"),
+                     startDate = "",
+                     endDate = "")
+
+nutrients.mediumrare <- nutrients.raw %>%
+  select(Date = sample_dt,
+         Sample_Time = sample_tm,   #One date had two observations at different times of the day; my dataframe has
+         #four columns, R wouldn't let me delete the sample time column.
+         Parameter = parm_cd,
+         Value = result_va)  %>%
+  group_by(Date, Parameter) %>%
+  summarize(Value = mean(Value)) %>%
+  spread(key = Parameter, value = Value) %>%
+  rename(TotalNitrogen_mgl_N = '00600', 
+         TotalPhosphorus_mgl_P = '00665') 
 
 ```
 
 8. Create two ggplots stacked with cowplot that show nutrient concentrations over time.
 
-```{r nutrient.plots)}
+```{r nutrient.plots), message=FALSE}
+N_concentrationplot <- ggplot(nutrients.mediumrare, aes(x = Date, y = TotalNitrogen_mgl_N))+
+  geom_line(color = "Blue")+
+  labs(y = "Total Concentration (mg/L)")
 
+P_concentrationplot <- ggplot(nutrients.mediumrare, aes(x = Date, y = TotalPhosphorus_mgl_P))+
+  geom_line()+
+  labs(y = "Total Concentration (mg/L)")
+
+Nutrientplot <-
+  plot_grid(N_concentrationplot, P_concentrationplot, ncol = 1, labels = c('Nitrogen', 'Phosphorus'))
+print(Nutrientplot)
 ```
 
 9. What do these plots tell you about nutrient concentrations over time? How might this relate to your previous plot of hypoxia events?
 
-> 
+> Nutrient concentration was very high and variable in the 1980s, then dropped off and leveled off around 1988-89. Nitrogen and phosphorus concentrations appear correlated, but there are individual instances where one spiked and the other didn't as much. For example, nitrogen's peak concentration is not also phosphorus's peak concentration, and vice versa.
+The period of high concentration and high variability in nitrogen and phosphorus concentration is similar to the period of high variability of oxygen concentration and hypoxia. Similarly, all three chemicals' concentrations leveled off around 1990.
 
 ## Discharge and Temperature
 
 10. Turbulent flow in rivers mixes oxygen into the water column. As discharge decreases, water moves slower, and oxygen diffuses slower into the water from the atmosphere. Download and reformat the daily discharge data for New Hope Creek (function `readNWISdv()`, site `02097314`, parameter `00060`). 
 
-```{r bring_discharge}
+```{r bring_discharge, message=FALSE}
+dischargedata.raw <- readNWISdv(siteNumbers = c("02097314"),
+                     parameterCd = c("00060"),
+                     startDate = "",
+                     endDate = "")
 
+Dischargedata <- dischargedata.raw %>%
+  select(site_no = site_no ,
+        Date = Date,
+         Discharge = X_00060_00003,
+         Approval_Code = X_00060_00003_cd)
 ```
 
 11. Create a dygraph of discharge and oxygen concentrations. You should have discharge on the y axis and oxygen concentration on the y2 axis. Set your y-axes limits so that they don't change as you zoom in and out. (hint: use `dyAxis(..., valueRange = c(0, 6500))` for discharge & `dyAxis(..., valueRange = c(0, 13))` for oxygen).
-```{r}
+```{r, message=FALSE}
+Total_Oxygen <- with(o2.dat, xts(x = O2_Concentration, order.by = Date))
+Discharge <- with(Dischargedata, xts(x = Discharge, order.by = Date))
 
+DyDat_HW <- cbind(Total_Oxygen, Discharge)
+
+dygraph(DyDat_HW) %>% 
+  dySeries("Total_Oxygen", axis = "y2") %>% 
+  dyAxis(name = "y", label = "Discharge (cfs)", valueRange = c(0, 6500)) %>%
+  dyAxis(name = "y2", label = "Total O2 (mg/L)", valueRange = c(0, 13)) %>%
+  dyRangeSelector()
 ```
 
 12. Do hypoxic events happen in the wet or the dry season? How many days after storm events (of at least 100 cfs) do they occur? 
 
-> 
+> The dry season, for the most part. I see it in as little as two weeks after a storm in the summer of 1984, but it could be even less time than that; there isn't a high enough frequency of data collection to know for sure.
 
 13. Temperature also impacts the solubility of oxygen in water. More oxygen can dissolve when temperatures are *lower*. How would you analyze the effects of temperature on dissolved oxygen concentrations? What data would you need? How would you separate the effects of temperature from the effects of flow?
 
