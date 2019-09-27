@@ -29,7 +29,7 @@ library(LAGOSNE)
 theme_set(theme_classic())
 options(scipen = 100)  #avoids scientific notation up to e^100
 
-lagosne_get(dest_folder = LAGOSNE:::lagos_path(), overwrite = TRUE)
+#lagosne_get(dest_folder = LAGOSNE:::lagos_path(), overwrite = TRUE)
 
 ```
 
@@ -49,7 +49,7 @@ LAGOSdata <- lagosne_load()
 names(LAGOSdata)
 
 # If the package installation and data download has not worked, use this code: 
-#load(file = "./Data/Raw/LAGOSdata.rda")
+load(file = "./Data/Raw/LAGOSdata.rda")
 
 # Exploring the data types that are available
 LAGOSlocus <- LAGOSdata$locus
@@ -243,3 +243,8 @@ What insights do we gain from the different visualizations?
 
 ## Closing Discussion
 What factors might you expect to influence TSI scores in a given area? What are some variables in the LAGOSNE database that could help you test your hypothesis?
+```{r}
+write.csv(LAGOStrophic, "./Data/LAGOStrophic.csv")
+```
+
+
