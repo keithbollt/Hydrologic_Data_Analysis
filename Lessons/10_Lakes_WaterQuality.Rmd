@@ -62,7 +62,7 @@ Wrangle LAGOSdata so that you have a new data frame that includes TN, TP, your f
 # Wrangle data here.
 #You would get the info from the LAGOS dataframes from lesson 9. Look at the second chunk from lesson 9 to make the dataframes. Then, you leftjoin all the dataframes you created by lagos lakeid. Then you select the columns you want.
 LAGOSdata.processed <-
-  LAGOSdata %>%
+  left_join() %>%
   select()
 ```
 
