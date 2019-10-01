@@ -27,7 +27,7 @@ The completed exercise is due on 2 October 2019 at 9:00 am.
 3. Set your ggplot theme (can be theme_classic or something else)
 4. Load the LAGOSdata database and the trophic state index csv file we created on 2019/09/27.
 
-```{r setup, warning=FALSE}
+```{r setup, warning= FALSE, message= FALSE}
 getwd()
 
 library(tidyverse)
@@ -45,7 +45,7 @@ LAGOSdata <- lagosne_load()
 
 5. Similar to the trophic.class column we created in class (determined from TSI.chl values), create two additional columns in the data frame that determine trophic class from TSI.secchi and TSI.tp (call these trophic.class.secchi and trophic.class.tp). 
 
-```{r, warning=FALSE}
+```{r, warning= FALSE, message= FALSE}
 LAGOSlocus <- LAGOSdata$locus
 LAGOSstate <- LAGOSdata$state
 LAGOSnutrient <- LAGOSdata$epi_nutr
@@ -91,7 +91,7 @@ LAGOStrophic <-
 
 6. How many observations fall into the four trophic state categories for the three metrics (trophic.class, trophic.class.secchi, trophic.class.tp)? Hint: `count` function.
 
-```{r}
+```{r, warning= FALSE, message= FALSE}
 chlcount <-
   LAGOStrophic %>%
   count(trophic.class)
@@ -110,19 +110,29 @@ print(tpcount)
 
 7. What proportion of total observations are considered eutrohic or hypereutrophic according to the three different metrics (trophic.class, trophic.class.secchi, trophic.class.tp)?
 
-```{r}
+```{r, warning= FALSE, message= FALSE}
 chl.proportion <-
   sum(LAGOStrophic$trophic.class == 'Eutrophic' | LAGOStrophic$trophic.class == 'Hypereutrophic') /
   sum(LAGOStrophic$trophic.class == 'Eutrophic' | LAGOStrophic$trophic.class == 'Hypereutrophic' |
       LAGOStrophic$trophic.class == 'Mesotrophic' | LAGOStrophic$trophic.class == 'Oligotrophic')
 print(chl.proportion)
 
-#Note to self for 10.1.19: repeat for the tp and secchi dataframes
+secchi.proportion <-
+  sum(LAGOStrophic$trophic.class.secchi == 'Eutrophic' | LAGOStrophic$trophic.class.secchi == 'Hypereutrophic') /
+  sum(LAGOStrophic$trophic.class.secchi == 'Eutrophic' | LAGOStrophic$trophic.class.secchi == 'Hypereutrophic' |
+      LAGOStrophic$trophic.class.secchi == 'Mesotrophic' | LAGOStrophic$trophic.class.secchi == 'Oligotrophic')
+print(secchi.proportion)
+
+tp.proportion <-
+  sum(LAGOStrophic$trophic.class.tp == 'Eutrophic' | LAGOStrophic$trophic.class.tp == 'Hypereutrophic') /
+  sum(LAGOStrophic$trophic.class.tp == 'Eutrophic' | LAGOStrophic$trophic.class.tp == 'Hypereutrophic' |
+      LAGOStrophic$trophic.class.tp == 'Mesotrophic' | LAGOStrophic$trophic.class.tp == 'Oligotrophic')
+print(tp.proportion)
 ```
 
 Which of these metrics is most conservative in its designation of eutrophic conditions? Why might this be?
 
-> 
+> Total phosphorus. Using this metric as a proxy for eutrophic conditions assumes that phosphorus is the limiting nutrient. While this is true in summer, this dataset contains yearround observations. For this reason, we would expect total phosphorus to underestimate the true amount of biomass in our lakes and therefore its true trophic state.
 
 Note: To take this further, a researcher might determine which trophic classes are susceptible to being differently categorized by the different metrics and whether certain metrics are prone to categorizing trophic class as more or less eutrophic. This would entail more complex code.
 
@@ -130,26 +140,53 @@ Note: To take this further, a researcher might determine which trophic classes a
 
 8. Create a data frame that includes the columns lagoslakeid, sampledate, tn, tp, state, and state_name. Mutate this data frame to include sampleyear and samplemonth columns as well. Call this data frame LAGOSNandP. 
 
-```{r}
-
+```{r, warning= FALSE, message= FALSE}
+LAGOSNandP <- 
+  left_join(LAGOSnutrient, LAGOSlocations, by = "lagoslakeid") %>%
+  select(lagoslakeid, sampledate, chla, tn, tp, secchi, 
+         gnis_name, lake_area_ha, state, state_name) %>%
+  mutate(sampleyear = year(sampledate), 
+         samplemonth = month(sampledate)) %>%
+  drop_na(chla:secchi) 
 ```
 
 9. Create two violin plots comparing TN and TP concentrations across states. Include a 50th percentile line inside the violins.
-```{r}
+```{r, warning= FALSE, message= FALSE}
+TN_violin <- ggplot(LAGOSNandP, aes(x = state, y = tn)) +
+  geom_violin(draw_quantiles = 0.50)+
+  labs(x = "State", y = "Total Nitrogen")
+print(TN_violin)
 
+TP_violin <- ggplot(LAGOSNandP, aes(x = state, y = tp)) +
+  geom_violin(draw_quantiles = 0.50)+
+  labs(x = "State", y = "Total Phosphorus")
+print(TP_violin)
 ```
 
 Which states have the highest and lowest median concentrations?
+```{r, warning= FALSE, message= FALSE}
+stats <-
+  LAGOSNandP %>%
+  group_by(state) %>%
+  summarise( MedianN = median(tn),
+            MedianP = median(tp)) 
 
-> TN:
+# I can do range with the naked eye, but not median.
+```
 
-> TP:
+> TN: Highest is Iowa
+      Lowest is Wisconsin
+
+> TP: Highest is Illinois
+      Lowest is Wisconsin
 
 Which states have the highest and lowest concentration ranges?
 
-> TN: 
+> TN: Highest is Iowa
+      Lowest is Wisconsin
 
-> TP: 
+> TP: Highest is Missouri
+      Lowest is Michigan
 
 10. Create two jitter plots comparing TN and TP concentrations across states, with samplemonth as the color. Choose a color palette other than the ggplot default.
 
