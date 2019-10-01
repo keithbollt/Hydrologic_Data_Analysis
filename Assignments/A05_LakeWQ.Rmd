@@ -190,48 +190,168 @@ Which states have the highest and lowest concentration ranges?
 
 10. Create two jitter plots comparing TN and TP concentrations across states, with samplemonth as the color. Choose a color palette other than the ggplot default.
 
-```{r}
+```{r, warning= FALSE, message= FALSE}
+TNjitter <- ggplot(LAGOSNandP, aes(x = state, y = tn, color = samplemonth))+
+  geom_jitter(alpha = 0.25)+
+  scale_color_viridis_c()+
+  labs(x = "State", y = "Total Nitrogen", color = "Month")
+print(TNjitter)
 
+TPjitter <- ggplot(LAGOSNandP, aes(x = state, y = tp, color = samplemonth))+
+  geom_jitter(alpha = 0.25)+
+  scale_color_viridis_c()+
+  labs(x = "State", y = "Total Phosphorus", color = "Month")
+print(TPjitter)
 ```
 
 Which states have the most samples? How might this have impacted total ranges from #9?
 
-> TN:
+```{r, warning= FALSE, message= FALSE}
+LAGOSP <- 
+  left_join(LAGOSnutrient, LAGOSlocations, by = "lagoslakeid") %>%
+  select(lagoslakeid, sampledate, chla, tp, secchi, 
+         gnis_name, lake_area_ha, state, state_name) %>%
+  mutate(sampleyear = year(sampledate), 
+         samplemonth = month(sampledate)) %>%
+  drop_na(tp)
+#creating a dataframe for P analysis
 
-> TP: 
+LAGOSN <- 
+  left_join(LAGOSnutrient, LAGOSlocations, by = "lagoslakeid") %>%
+  select(lagoslakeid, sampledate, chla, tn, secchi, 
+         gnis_name, lake_area_ha, state, state_name) %>%
+  mutate(sampleyear = year(sampledate), 
+         samplemonth = month(sampledate)) %>%
+  drop_na(tn)
+#creating a dataframe for N analysis
+
+
+countbystateTP <-
+  LAGOSP %>%
+  group_by(state_name) %>%
+  tally() %>%
+  na.omit()
+  
+
+countbystateTN <-
+  LAGOSN %>%
+  group_by(state_name) %>%
+  tally() %>%
+  na.omit()
+```
+
+
+> TN: Missouri
+> TP: Wisconsin
+States with smaller datasets might not be large enough to capture their own statistical tails, because the extreme ends of their tails don't occur often enough to be captured in a small, random sampling.
 
 Which months are sampled most extensively? Does this differ among states?
 
-> TN:
+```{r}
+countbymonthTP <-
+  LAGOSP %>%
+  group_by(samplemonth) %>%
+  tally() %>%
+  na.omit()
+  
+countbymonthTN <-
+  LAGOSN %>%
+  group_by(samplemonth) %>%
+  tally() %>%
+  na.omit()
+```
 
-> TP: 
+> TN: July
+
+> TP: August
+
+```{r}
+countbymonthstateN <-
+  LAGOSN %>%
+  group_by(state_name, samplemonth) %>%
+  tally() %>%
+  na.omit()
+#Yes, it does for nitrogen.
+
+countbymonthstateP <-
+  LAGOSP %>%
+  group_by(state_name, samplemonth) %>%
+  tally() %>%
+  na.omit()
+#Yes, it does for phosphorus.
+```
+
 
 11. Create two jitter plots comparing TN and TP concentrations across states, with sampleyear as the color. Choose a color palette other than the ggplot default.
 
 ```{r}
+TNjitter <- ggplot(LAGOSNandP, aes(x = state, y = tn, color = sampleyear))+
+  geom_jitter(alpha = 0.25)+
+  scale_color_viridis_c()+
+  labs(x = "State", y = "Total Nitrogen", color = "Year")
+print(TNjitter)
 
+TPjitter <- ggplot(LAGOSNandP, aes(x = state, y = tp, color = sampleyear))+
+  geom_jitter(alpha = 0.25)+
+  scale_color_viridis_c()+
+  labs(x = "State", y = "Total Phosphorus", color = "Year")
+print(TPjitter)
 ```
 
 
 Which years are sampled most extensively? Does this differ among states?
 
-> TN:
+```{r}
+countbyyearTP <-
+  LAGOSP %>%
+  group_by(sampleyear) %>%
+  tally() %>%
+  na.omit()
 
-> TP: 
+countbyyearTN <-
+  LAGOSN %>%
+  group_by(sampleyear) %>%
+  tally() %>%
+  na.omit()
+```
+
+
+> TN: 2009
+
+> TP: 2009
+
+```{r}
+countbyyearstateN <-
+  LAGOSN %>%
+  group_by(state_name, sampleyear) %>%
+  tally() %>%
+  na.omit()
+#Yes, it does for nitrogen.
+
+countbyyearstateP <-
+  LAGOSP %>%
+  group_by(state_name, sampleyear) %>%
+  tally() %>%
+  na.omit()
+#Yes, it does for phosphorus.
+```
+
 
 ## Reflection
 12. What are 2-3 conclusions or summary points about lake water quality you learned through your analysis?
 
->
+> There is extensive variation in data collection temporally and geographically. Different areas have different vairation and different level of nutrients in their lakes.
+
 
 13. What data, visualizations, and/or models supported your conclusions from 12?
 
-> 
+> The first conclusion was driven home by the series of dataframes I made at the end of this assignment. I compared data collection by state, month of year, and year; all by nutrient, and saw large variation in data available.
+The second conclusion was driven home by the different ranges and medians in the violin plot of nutrient concentration by state.
 
 14. Did hands-on data analysis impact your learning about water quality relative to a theory-based lesson? If so, how?
 
->
+> I felt like for this lesson, I got bogged down in the process of creating dataframes to show distribution of data collection, and was less focused at times on the water science behind them. When we focused on comparing nutrient levels across states, such as in the violin plot, I felt the hands on learning was very helpful.
 
 15.	How did the real-world data compare with your expectations from theory?
 
->
+> I would have expected that the Land of 10,000 Lakes would have the most data samples. I suppose it is one of the coldest and remote states in the dataframe. I was not surprised to see that July had the most data collection, or that the big agriculture states had the highest nutrient levels.
