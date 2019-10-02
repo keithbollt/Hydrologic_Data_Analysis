@@ -93,11 +93,11 @@ print(ClearCreekRegressionPlot)
 
 Is a linear regression an appropriate model for the data in this case? Why or why not?
 
-> 
+> Not in this case
 
 Are there situations where it would be appropriate to use a linear regression to model a time series? If so, what is an example?
 
->
+> yes, Graphing data on august 12ths
 
 
 ## Decomposing a time series dataset
@@ -113,7 +113,8 @@ We first need to turn the discharge data into a time series object in R. This is
 
 Note: time series objects must be equispaced, which requires interpolation if the data have not been collected at regular intervals. In our case, we have daily data with no NAs in the data frame, so we don't need to worry about this.
 ```{r}
-ClearCreek_ts <- ts(ClearCreekDischarge[[4]], frequency = 365)
+ClearCreek_ts <- ts(ClearCreekDischarge[[4]], frequency = 365)  #time series requires regularly spaced data because it can only test one variable at a time (not even time!)
+# If you have NAs, you must interpolate, or cut a bunch of data so that it is still evenly spaced
 
 ```
 
@@ -125,7 +126,7 @@ The `stl` function decomposes the time series object into its component parts. W
 ClearCreek_Decomposed <- stl(ClearCreek_ts, s.window = "periodic")
 
 # Visualize the decomposed series. 
-plot(ClearCreek_Decomposed)
+plot(ClearCreek_Decomposed) #data = seasonal+trend+remainder from this graph
 
 # We can extract the components and turn them into data frames
 ClearCreek_Components <- as.data.frame(ClearCreek_Decomposed$time.series[,1:3])
