@@ -31,6 +31,8 @@ library(tseries)
 
 theme_set(theme_classic())
 
+#lagosne_get()
+load(file = "./Data/Raw/LAGOSdata.rda")
 LAGOSdata <- lagosne_load()
 ```
 
@@ -109,7 +111,7 @@ Detecting whether the outlier is a true measurement or a mistake in the dataset 
 # Remove issues 1 and 2, arrange by date
 Mendotadata <- Mendotadata %>%
   filter(tp < 300 & sampledate > "1988-01-01") %>%
-  arrange(sampledate)
+  arrange(sampledate)  # this lines up the dates in order
 
 # Re-plot data
 MendotaTP <-
@@ -125,15 +127,15 @@ We see that TP data were collected somewhere between biweekly and monthly across
 
 Common interpolation methods: 
 
-* **Piecewise constant**: <fill in notes here>
-* **Linear**: <fill in notes here>
-* **Spline**: <fill in notes here>
+* **Piecewise constant**: <have a point equal to the known value it is nearest>
+* **Linear**: <connect the dots>
+* **Spline**: <draws a curved line connecting the points>
 
 Linear interpolation is most common for water quality data, and fits with our understanding about how TP might change over time in this system. 
 ```{r}
 # Generate monthly values from July 1988 to August 2013
-linearinterpolation <- as.data.frame(approx(Mendotadata, n = 303, method = "linear"))
-linearinterpolation$x <- as.Date(linearinterpolation$x, origin = "1970-01-01")
+linearinterpolation <- as.data.frame(approx(Mendotadata, n = 303, method = "linear")) # there are 303 months in the dataset
+linearinterpolation$x <- as.Date(linearinterpolation$x, origin = "1970-01-01") #the data spat out days since 1970, so we'll change it to dates
 names(linearinterpolation) <- c("Date", "TP")
 
 # Inspect interpolated values 
@@ -146,19 +148,20 @@ print(MendotaTPinterpolated)
 
 # Generate time series (smk.test needs ts, not data.frame)
 Mendotatimeseries <- ts(linearinterpolation$TP, frequency = 12, 
-                        start = c(1988, 7, 5), end = c(2013, 8, 5))
+                        start = c(1988, 7, 5), end = c(2013, 8, 5))  #starts on 7/5/1988, ends on 8/5/2013
 # Run SMK test
 Mendotatrend <- smk.test(Mendotatimeseries)
 
 # Inspect results
 Mendotatrend
 summary(Mendotatrend)
-
+#S counts the difference between the points. A larger absolute value of varS means more variation in the data.
+#No matter when you start the dataset, season 1 is always January
 ```
 
 What would we conclude based on these findings? Describe as you would to an educated but non-specialist audience.
 
->
+> There is not a significant overall trend, or a trend in 10 of 12 months, but there is a significant negative trend in October and November.
  
 If a significant trend was present, we could compute a **Sen's Slope** to quantify that trend (`sens.slope` function in the trend package).
  
@@ -185,10 +188,10 @@ names(ClearCreekDischarge)[4:5] <- c("Discharge", "Approval.Code")
 ClearCreekDischarge.Monthly <- ClearCreekDischarge %>%
   mutate(Year = year(Date), 
          Month = month(Date)) %>%
-  group_by(Year, Month) %>%
+  group_by(Year, Month) %>%   # You want an average for every month of every year
   summarise(Discharge = mean(Discharge))
     
-ClearCreek_ts <- ts(ClearCreekDischarge.Monthly[[3]], frequency = 12)
+ClearCreek_ts <- ts(ClearCreekDischarge.Monthly[[3]], frequency = 12)  #month is column 3; 12 months in a year
 
 ```
 
