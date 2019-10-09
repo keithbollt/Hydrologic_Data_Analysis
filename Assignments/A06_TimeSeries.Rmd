@@ -1,6 +1,6 @@
 ---
 title: "Assignment 6: Time Series Analysis"
-author: "Student Name"
+author: "Keith Bollt"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -28,7 +28,16 @@ The completed exercise is due on 11 October 2019 at 9:00 am.
 4. Load the ClearCreekDischarge.Monthly.csv file from the processed data folder. Call this data frame ClearCreekDischarge.Monthly.
 
 ```{r setup}
+getwd()
 
+library(tidyverse)
+library(lubridate)
+library(trend)
+library(dataRetrieval)
+
+theme_set(theme_classic())
+
+ClearCreekDischarge.Monthly <- read.csv("./Data/Processed/ClearCreekDischarge.Monthly.csv")
 ```
 
 ## Time Series Decomposition
@@ -38,7 +47,19 @@ The completed exercise is due on 11 October 2019 at 9:00 am.
 8. Decompose the time series using the `stl` function.
 9. Visualize the decomposed time series.
 ```{r}
+EnoDischarge <- readNWISdv(siteNumbers = "02085070",
+                     parameterCd = "00060", 
+                     startDate = "",
+                     endDate = "")
+names(EnoDischarge)[4:5] <- c("Discharge", "Approval.Code")
 
+Enoplot <- ggplot(EnoDischarge, aes(x = Date, y = Discharge))+
+  geom_line()+
+  labs(x = "", y = expression("Discharge (ft"^3*"/s)")) 
+
+print(Enoplot)
+
+Enotimeseries <- ts(EnoDischarge[[4]], frequency = 365)
 ```
 
 10. How do the seasonal and trend components of the decomposition compare to the Clear Creek discharge dataset? Are they similar in magnitude?
