@@ -37,7 +37,7 @@ library(dataRetrieval)
 
 theme_set(theme_classic())
 
-ClearCreekDischarge.Monthly <- read.csv("./Data/Processed/ClearCreekDischarge.Monthly.csv")
+ClearCreekDischarge.Monthly <- read.csv("Z:/Hydrologic_Data_Analysis2/Data/Processed/ClearCreekDischarge.Monthly.csv")
 ```
 
 ## Time Series Decomposition
@@ -60,13 +60,17 @@ Enoplot <- ggplot(EnoDischarge, aes(x = Date, y = Discharge))+
 print(Enoplot)
 
 Enotimeseries <- ts(EnoDischarge[[4]], frequency = 365)
+
+Eno_Decomposed <- stl(Enotimeseries, s.window = "periodic")
+
+plot(Eno_Decomposed)
 ```
 
 10. How do the seasonal and trend components of the decomposition compare to the Clear Creek discharge dataset? Are they similar in magnitude?
 
-> Seasonal: 
+> Seasonal: Clear Creek has a seasonal component magnitude peak of a little more than 600 cfs.The Eno River has a seasonal component magnitude peak of around 250 cfs.
 
-> Trend: 
+> Trend: Clear Creek has a trend component magnitude peak of around 340 cfs, and it usually fluctuates between 75 and 250 cfs.The Eno River has a trend component magnitude peak of around 250-300 cfs, and it usually fluctuates between 50 and 175 cfs.
 
 ## Trend Analysis
 Research question: Has there been a monotonic trend in discharge in Clear Creek over the period of study?
@@ -74,30 +78,40 @@ Research question: Has there been a monotonic trend in discharge in Clear Creek 
 11. Generate a time series of monthly discharge in Clear Creek from the ClearCreekDischarge.Monthly data frame. This time series should include just one column (discharge). 
 12. Run a Seasonal Mann-Kendall test on the monthly discharge data. Inspect the overall trend and the monthly trends. 
 ```{r}
+ClearCreek_ts <- ts(ClearCreekDischarge.Monthly[[3]], frequency = 12)
 
+ClearCreektrend <- smk.test(ClearCreek_ts)
+ClearCreektrend
+
+summary(ClearCreektrend)
 ```
 
 13. Is there an overall monotonic trend in discharge over time? If so, is it positive or negative?
 
-> 
+> There is not an overall monotonic trend in discharge over time, because the p-value is greater than 0.05; it is 0.097.
 
 14. Are there any monthly monotonic trends in discharge over time? If so, during which months do they occur and are they positive or negative?
 
-> 
+> Two months have statistically significant monotonic trends in discharge over time. Both June and July show positive trends over time. 
 
 ## Reflection
 15. What are 2-3 conclusions or summary points about time series you learned through your analysis?
 
->
+> 1) A timeseries' value is made up of three components: seasonal, trend, and remainder. 
+2) Different creeks have different relative and absolute seasonal and trend components of their timeseries. 
+3) A seasonal Mann Kendall test is a powerful tool for looking at trends month to month in a timeseries.
 
 16. What data, visualizations, and/or models supported your conclusions from 12?
 
-> 
+> 1) Plotting the timeseries I generated for the Eno River and Clear Creek as a summation of its three components.
+2)Being asked to compare the time series plots for the Eno River and Clear Creek in question 10.
+3) Peforming the seasonal Mann Kendall test and analyzing the results for questions 11-14 allowed me to make several important conclusions about discharge data in Clear Creek
+
 
 17. Did hands-on data analysis impact your learning about time series relative to a theory-based lesson? If so, how?
 
->
+> Any time I can visualize a theoretical concept, it helps me understand it. For example, the way R plots time series as a summation of its seasonal, trend, and remainder components helps me appreciate what a time series represents. 
 
 18.	How did the real-world data compare with your expectations from theory?
 
->
+> I was surprised to see the trend component of the timeseries fluctuate so much. I was also surprised to see there was not an overall trend in discharge at Clear Creek, which would be an indicator of climate change; maybe there is a trend in variation as a result of climate change though.
