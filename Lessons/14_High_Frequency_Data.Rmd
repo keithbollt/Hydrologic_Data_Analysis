@@ -25,8 +25,16 @@ Wednesday we used high-frequency hydrographs to learn about how water flows thro
 ```{r, message = FALSE}
 getwd()
 
-# install.packages("StreamPULSE")
-# install.packages("streamMetabolizer")
+#install.packages("devtools")
+#library(devtools)
+#install_github("streampulse/StreamPULSE")
+
+#install.packages("streamMetabolizer", dependencies = TRUE, repos = c("http://owi.usgs.gov/R", "http://cran.rstudio.com"))
+
+#install.packages("dataRetrieval")
+#install.packages("tidyverse")
+#install.packages("xts")
+#install.packages("dygraphs")
 
 packages <- c(
   "dataRetrieval", 
@@ -86,11 +94,17 @@ ggplot(Potdat,
 
 Which of these rivers is more chemostatic?
 
->
+> Crane Creek, it's flatter as flow increases
 
 ## Hysteresis Loops
 
 Hysteresis occurs when the concentration varies with discharge in a different relationship on the rising and falling limbs of a storm. This can be caused by _flushing_ behavior or _dilution_ behavior. 
+
+Diluting: Concentration decreases as flow increases
+Flushing: Concentration increases as flow increases
+Chemostatic: Concentration not related to flow
+
+A hysteresis loop occurs when a stream's concentration loops back on itself as the river rises and then falls.
 
 ```{r}
 dygraph(
@@ -133,11 +147,11 @@ Which direction do hysteresis loops go for flushing storms?
 
 What is "ecosystem metabolism"?
 
->
+>Measures the rate that an ecosystem consumes energy
 
 Why would we want to know the *GPP* and *ER* of a river reach?
 
->
+> They tell us about that stream's ecology
 
 
 The StreamPulse project is a group of researchers around the world who are measuring oxygen concentrations in streams to determine the GPP and ER of many different types of streams and rivers from around the globe. We will be using data from their website for this class period. This project uses the R package `streamMetabolizer` to compute its estimates of metabolism and allows data download from its site using the `StreamPULSE` R package.
@@ -147,7 +161,7 @@ citation('streamMetabolizer')
 ```
 
 ```{r}
-Enodat <- request_data(
+Enodat <- request_data(   #streamPULSE package
   sitecode = "NC_Eno",
   variables = c('DO_mgL'),
   startdate = "2016-09-15", 
@@ -169,7 +183,9 @@ $\frac{dO_2}{dt} = P_t + R_t + D_t$
 
 What are P~t~, R~t~ and D~t~? What are these parameters functions of?
 
->
+> Pt is productivity/photosynthesis
+Rt is respiration
+Dt is water discharge
 
 
 Visit https://data.streampulse.org/ 
